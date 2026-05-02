@@ -1,0 +1,35 @@
+.footer-link:hover {
+  color: #ffffff !important;
+}
+
+a:hover i {
+  color: #0d6efd;
+}
+
+/* Footer Logo */
+.footer-logo {
+  filter: brightness(0) invert(1);
+}
+
+/* Footer Links */
+.footer-link {
+  color: #adb5bd !important;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #ffffff !important;
+  text-decoration: none;
+}
+
+/* Social Icons */
+.social-icon {
+  color: #ffffff;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  color: #0d6efd;
+  transform: translateY(-3px);
+}
