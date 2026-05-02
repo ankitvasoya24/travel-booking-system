@@ -18,14 +18,27 @@ exports.createHotel = async (req, res) => {
   }
 };
 
-
+// GET ALL HOTELS 
 exports.getAllHotels = async (req, res) => {
   try {
-    const hotels = await Hotel.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const total = await Hotel.countDocuments();
+
+    const hotels = await Hotel.find()
+      .skip(skip)
+      .limit(limit);
+
     res.status(200).json({
       success: true,
+      totalRecords: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
       data: hotels
     });
+
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

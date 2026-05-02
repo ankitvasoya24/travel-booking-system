@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
+require('dotenv').config(); 
 
 var app = require('../app');
 var debug = require('debug')('backend:server');
@@ -10,21 +7,21 @@ var http = require('http');
 
 const mongoose = require("mongoose");
 
-mongoose.connect('mongodb+srv://ankitpatel364242:23looP8jarP7bjuc@cluster0.cahgd5k.mongodb.net/backend')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
   })
   .catch((err) => {
     console.log("MongoDB Connection Error:", err);
   });
-
+  
   // console.log("MongoDB Connected Successfully");
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '5000');
+var port = normalizePort(process.env.PORT || '3005');
 app.set('port', port);
 
 /**

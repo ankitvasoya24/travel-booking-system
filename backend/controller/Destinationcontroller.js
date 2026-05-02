@@ -16,8 +16,6 @@ exports.createDestination = async (req, res) => {
       badge: badge || "",
     });
 
-    //  const newPackage = await Destination.create(req.body);
-
     res.status(201).json({ 
       success: true, 
       message: "Destination created", 
@@ -28,18 +26,46 @@ exports.createDestination = async (req, res) => {
   }
 };
 
-// Get All Packages
 exports.getAllDestination = async (req, res) => {
   try {
-    const packages = await Destination.find();
-    res.status(200).json({ success: true, total: packages.length, data: packages });
+    const all = req.query.all === "true"; 
+    let destinations, total;
+
+    if (all) {
+    
+      destinations = await Destination.find();
+      total = destinations.length;
+      res.status(200).json({
+        success: true,
+        totalRecords: total,
+        data: destinations
+      });
+    } else {
+      // Admin panel ke liye pagination
+      const page = parseInt(req.query.page) || 1;
+      const limit = 5;
+      const skip = (page - 1) * limit;
+      total = await Destination.countDocuments();
+      destinations = await Destination.find().skip(skip).limit(limit);
+
+      res.status(200).json({
+        success: true,
+        totalRecords: total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        data: destinations
+      });
+    }
   } catch (error) {
-  
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 
-// Update Package
+// Update
 exports.updateDestination = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,7 +91,7 @@ exports.updateDestination = async (req, res) => {
   }
 };
 
-// Delete Package
+// Delete
 exports.deleteDestination = async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,20 +113,20 @@ exports.deleteDestination = async (req, res) => {
   }
 };
 
-// Get Single Package
+// Get Single
 exports.getPackageById = async (req, res) => {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
+    id = id.trim(); 
 
-    const packageItem = await Package.findById(id);
+    const destinationItem = await Destination.findById(id);
 
-    if (!packageItem) {
-      return res.status(404).json({ success: false, message: "Package not found" });
+    if (!destinationItem) {
+      return res.status(404).json({ success: false, message: "Destination not found" });
     }
 
-    res.status(200).json({ success: true, data: packageItem });
+    res.status(200).json({ success: true, data: destinationItem });
   } catch (error) {
-    
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };

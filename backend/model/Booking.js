@@ -28,10 +28,26 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+    payment: {
+      method: {
+        type: String,
+        enum: ["razorpay", "upi", "card", "cash"],
+        default: "cash"
+      },
+
+      transactionId: String,
+
+      paymentStatus: {
+        type: String,
+        enum: ["pending", "paid", "failed", "refunded"],
+        default: "paid"
+      },
+      paidAt: Date
+    },
 
     bookingStatus: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
+      enum: [ "initiated", "pending", "confirmed", "cancelled"],
       default: "confirmed"
     }
     

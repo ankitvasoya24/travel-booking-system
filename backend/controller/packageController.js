@@ -19,11 +19,22 @@ exports.createPackage = async (req, res) => {
 
 exports.getAllPackages = async (req, res) => {
   try {
-    const packages = await Package.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const total = await Package.countDocuments();
+
+    const packages = await Package.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
-      total: packages.length,
+      totalRecords: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
       data: packages,
     });
   } catch (error) {
@@ -49,7 +60,6 @@ exports.getPackageById = async (req, res) => {
   }
 };
 
-const mongoose = require("mongoose");
 
 exports.updatePackage = async (req, res) => {
   try {

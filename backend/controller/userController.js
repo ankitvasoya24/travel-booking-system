@@ -2,7 +2,7 @@ const User = require("../model/User");
 var jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-const userkey = "USERKEY";
+const userkey = process.env.USER_JWT_SECRET;
 
 // Signup
 exports.signup = async (req, res) => {
@@ -51,7 +51,7 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id, email: user.email }, userkey, {
+    const token = jwt.sign({ id: user._id, email: user.email, role: "user" }, userkey, {
       expiresIn: "7d",
     });
 
@@ -72,13 +72,25 @@ exports.login = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    // const users = await User.find();
-    const users = await User.find().select("-password");
+    const page = parseInt(req.query.page) || 1;  
+    const limit = 6;                             
+    const skip = (page - 1) * limit;
+
+    const total = await User.countDocuments();
+
+    const users = await User.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
     res.json({
-      totaluser: users.length,
+      success: true,
+      totalRecords: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
       users,
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -3,7 +3,7 @@ const Booking = require("../model/Booking");
 // Create Booking
 exports.createBooking = async (req, res) => {
   try {
-    const { bookingType, itemId, travelDate, persons, amount } = req.body;
+    const { bookingType, itemId, travelDate, persons=1, amount } = req.body;
 
     if (!bookingType || !itemId || !travelDate) {
       return res.status(400).json({ message: "All fields required" });
@@ -25,6 +25,11 @@ exports.createBooking = async (req, res) => {
       travelDate,
       persons,
       amount,
+       bookingStatus: "confirmed",
+      payment: {
+        paymentStatus: "paid",
+        paidAt: new Date()
+      }
     });
 
     res.status(201).json({
@@ -40,43 +45,68 @@ exports.createBooking = async (req, res) => {
 // GET USER BOOKINGS
 exports.getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.user.id }).sort({
-      createdAt: -1,
-    });
-
-    res.status(200).json({ bookings });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ADMIN: GET ALL BOOKINGS
-exports.getAllBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find()
-      .populate("userId", "name email mobile")
+    const bookings = await Booking.find({ userId: req.user.id })
       .sort({ createdAt: -1 });
 
     res.status(200).json({
-      totalBooking: bookings.length,
-      bookings,
+      success: true,
+      bookings
     });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// ADMIN: GET ALL BOOKINGS WITH PAGINATION
+exports.getAllBookings = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
 
-// exports.getAllBookings = async (req, res) => {
-//   try {
-//     const bookings = await Booking.find()
-//       .populate("user", "name email")
-//       .populate("item", "name flightNumber")
-//       .sort({ createdAt: -1 });
+    const total = await Booking.countDocuments();
 
-//     res.status(200).json({ bookings });
+    const bookings = await Booking.find()
+      .populate("userId", "name email mobile")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+    res.status(200).json({
+      success: true,
+      totalRecords: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      bookings,
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//update by only admin
+exports.updateBookingStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    booking.bookingStatus = status;
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Booking status updated",
+      booking
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

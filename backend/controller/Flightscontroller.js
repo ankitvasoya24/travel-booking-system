@@ -17,11 +17,22 @@ exports.createFlight = async (req, res) => {
 
 exports.getAllFlights = async (req, res) => {
   try {
-    const flights = await Flight.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const total = await Flight.countDocuments();
+
+    const flights = await Flight.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
-      totalFlights: flights.length,
+      totalFlights: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
       data: flights
     });
   } catch (error) {

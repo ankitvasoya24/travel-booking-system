@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const SECRETKEY = "ADMINKEY";
+const SECRETKEY = process.env.ADMIN_JWT_SECRET;
 
 const verifyAdminToken = (req, res, next) => {
 
