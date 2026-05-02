@@ -9,10 +9,6 @@ const Admin = () => {
 
   const fetchAdmins = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-    console.log("adminToken :", token);
-    
-
       const res = await adminAPI.get("/admin/getadmin");
       console.log("data",res.data.admin)
       setAdmins(res.data.admin || []);
@@ -35,8 +31,6 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this admin?")) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
-
       await adminAPI.delete(`/admin/delete/${id}`);
       alert("Admin deleted");
       fetchAdmins();

@@ -32,7 +32,7 @@ const Register = () => {
     }
 
     try {
-      const response = await userAPI.post("/user/signup", formData);
+      await userAPI.post("/user/signup", formData);
 
       alert("User registered successfully");
 

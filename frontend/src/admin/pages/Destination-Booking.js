@@ -13,7 +13,6 @@ const DestinationBookings = () => {
   const fetchBookings = async (page = 1) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
 
       const res = await adminAPI.get(
         `/booking/alldestination?page=${page}`
